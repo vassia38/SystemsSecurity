@@ -1,0 +1,33 @@
+---
+- name: Install zip 
+  apt:
+    name:
+      - zip
+    state: present
+    update_cache: true
+
+- name: Copy the CodeIgniter app archive
+  unarchive:
+    src: codeigniter_app.zip
+    dest: /var/www/html/
+    remote_src: no
+
+- name: Fix permissions
+  file:
+    path: /var/www/html/codeigniter
+    owner: www-data
+    group: www-data
+    recurse: yes
+
+- name: Push the .env
+  template:
+    src: env.j2
+    dest: /var/www/html/codeigniter/.env
+    owner: www-data
+    group: www-data
+    mode: '0640'
+
+- name: Restart Apache
+  service:
+    name: apache2
+    state: restarted

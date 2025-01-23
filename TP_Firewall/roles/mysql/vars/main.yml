@@ -1,0 +1,6 @@
+mysql_root_password: 'passwd'
+codeigniter_db: 'codeigniter_db'
+codeigniter_user: 'codeigniter_user'
+codeigniter_password: 'passwd'
+mysql_privileges: 'codeigniter_db.*:ALL'
+mysql_bind_address: '0.0.0.0'

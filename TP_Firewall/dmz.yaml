@@ -1,0 +1,19 @@
+---
+- name: Deploy CodeIgniter4 webapp
+  hosts: webservers
+  become: true
+  roles:
+    - apache
+    - codeigniter
+
+- name: Config MySQL database
+  hosts: dbservers
+  become: true
+  roles:
+    - mysql
+
+- name: Configure DNS
+  hosts: dnsservers
+  become: true
+  roles:
+    - dns

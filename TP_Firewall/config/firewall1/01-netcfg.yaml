@@ -1,0 +1,14 @@
+network:
+  version: 2
+  ethernets:
+    eth0:
+      addresses:
+        - 10.100.0.10/24      # external
+      nameservers:
+        addresses:
+          - 8.8.8.8
+      gateway4: 10.100.0.1
+    eth1:
+      addresses:
+        - 10.100.1.10/24   # DMZ
+ 

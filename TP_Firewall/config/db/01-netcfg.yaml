@@ -1,0 +1,10 @@
+network:
+  version: 2
+  ethernets:
+    eth1:
+      addresses:
+        - 10.100.1.2/24   # DMZ
+      nameservers:
+        addresses:
+          - 8.8.8.8
+      gateway4: 10.100.1.10   # FW1

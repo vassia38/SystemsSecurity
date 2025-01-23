@@ -1,0 +1,65 @@
+---
+- name: Install PyMySQL
+  apt:
+    name: python3-pymysql
+    state: present
+
+- name: Configure root password for MySQL
+  debconf:
+    name: mysql-server
+    question: "mysql-server/root_password"
+    value: "{{ mysql_root_password }}"
+    vtype: "password"
+
+- name: Confirm root password for MySQL
+  debconf:
+    name: mysql-server
+    question: "mysql-server/root_password_again"
+    value: "{{ mysql_root_password }}"
+    vtype: "password"
+
+- name: Install MySQL Server
+  apt:
+    name: mysql-server
+    state: present
+    update_cache: true
+
+- name: Start and enable MySQL
+  service:
+    name: mysql
+    state: started
+    enabled: true
+
+- name: Modify MySQL to accept external connections
+  lineinfile:
+    path: /etc/mysql/mysql.conf.d/mysqld.cnf
+    regexp: '^bind-address'
+    line: "bind-address = {{ mysql_bind_address }}"
+    backup: yes
+
+- name: Restart MySQL
+  service:
+    name: mysql
+    state: restarted
+
+- name: Create a db for CodeIgniter
+  mysql_db:
+    name: "{{ codeigniter_db }}"
+    state: present
+    login_user: root
+    login_password: "{{ mysql_root_password }}"
+    login_host: "localhost"
+    login_unix_socket: "{{ mysql_socket_path | default('/var/run/mysqld/mysqld.sock') }}"
+
+- name: Create a MySQL user for CodeIgniter
+  mysql_user:
+    name: "{{ codeigniter_user }}"
+    host: '%'
+    password: "{{ codeigniter_password }}"
+    priv: "{{ mysql_privileges }}"
+    state: present
+    login_user: root
+    login_password: "{{ mysql_root_password }}"
+    login_host: "%"
+    login_unix_socket: "{{ mysql_socket_path | default('/var/run/mysqld/mysqld.sock') }}"
+

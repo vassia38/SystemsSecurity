@@ -1,0 +1,8 @@
+ci_environment: 'production'
+app_base_url: 'http://192.168.100.10/'
+db_hostname: '192.168.100.11'
+codeigniter_db: 'codeigniter_db'
+codeigniter_user: 'codeigniter_user'
+codeigniter_password: 'passwd'
+db_port: 3306
+db_driver: 'MySQLi'

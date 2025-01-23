@@ -1,0 +1,98 @@
+---
+- name: Enable IPv4 forwarding
+  sysctl:
+    name: net.ipv4.ip_forward
+    value: '1'
+    state: present
+    reload: yes
+
+- name: Install iptables-persistent (for Debian/Ubuntu)
+  apt:
+    name: iptables-persistent
+    state: present
+    update_cache: yes
+
+- name: Flush existing iptables rules
+  command: iptables -F
+  tags: iptables
+
+- name: Flush existing NAT rules
+  command: iptables -t nat -F
+  tags: iptables
+
+# -----------------------------------------------------
+# Firewall1-specific tasks (WAN <-> DMZ)
+# -----------------------------------------------------
+- name: Set up NAT on firewall1
+  iptables:
+    table: nat
+    chain: POSTROUTING
+    out_interface: "{{ firewall_external_iface }}"
+    jump: MASQUERADE
+  when: firewall_is_firewall1
+  tags: iptables
+
+- name: Allow forwarding from DMZ to WAN (firewall1)
+  iptables:
+    chain: FORWARD
+    in_interface: "{{ firewall_dmz_iface }}"
+    out_interface: "{{ firewall_external_iface }}"
+    policy: ACCEPT
+    state: present
+  when: firewall_is_firewall1
+  tags: iptables
+
+- name: Allow forwarding from WAN to DMZ (firewall1)
+  iptables:
+    chain: FORWARD
+    in_interface: "{{ firewall_external_iface }}"
+    out_interface: "{{ firewall_dmz_iface }}"
+    policy: ACCEPT
+    state: present
+  when: firewall_is_firewall1
+  tags: iptables
+
+# Example: If you want to allow inbound DNS, HTTP, HTTPS to the DMZ
+# from the outside world, you might do:
+- name: Allow inbound HTTP from WAN to DMZ (firewall1)
+  iptables:
+    chain: FORWARD
+    in_interface: "{{ firewall_external_iface }}"
+    # if you want to restrict by specific DMZ IP or protocol, do it here
+    protocol: tcp
+    destination_port: 80
+    jump: ACCEPT
+  when: firewall_is_firewall1
+  tags: iptables
+
+# -----------------------------------------------------
+# Firewall2-specific tasks (DMZ <-> LAN)
+# -----------------------------------------------------
+- name: Allow forwarding DMZ -> LAN
+  iptables:
+    chain: FORWARD
+    in_interface: "{{ firewall_dmz_iface }}"
+    out_interface: "{{ firewall_lan_iface }}"
+    jump: ACCEPT
+  when: firewall_is_firewall2
+  tags: iptables
+
+- name: Allow forwarding LAN -> DMZ
+  iptables:
+    chain: FORWARD
+    in_interface: "{{ firewall_lan_iface }}"
+    out_interface: "{{ firewall_dmz_iface }}"
+    jump: ACCEPT
+  when: firewall_is_firewall2
+  tags: iptables
+
+# -----------------------------------------------------
+# Save iptables
+# -----------------------------------------------------
+- name: Save IPv4 iptables rules
+  shell: "iptables-save > /etc/iptables/rules.v4"
+  args:
+    executable: /bin/bash
+  tags: iptables
+
+

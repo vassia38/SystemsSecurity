@@ -1,0 +1,7 @@
+---
+firewall_external_iface: eth0
+firewall_dmz_iface: eth1
+firewall_lan_iface: ""
+firewall_is_firewall1: true
+firewall_is_firewall2: false
+

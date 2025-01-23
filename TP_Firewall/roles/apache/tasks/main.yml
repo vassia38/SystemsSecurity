@@ -1,0 +1,41 @@
+---
+- name: Install Apache, PHP, zip
+  apt:
+    name:
+      - apache2
+      - libapache2-mod-php
+      - php
+      - php-mysql
+      - php-intl
+      - php-mbstring
+    state: present
+    update_cache: true
+
+- name: Copy Apache config for CodeIgniter
+  template:
+    src: codeigniter.conf.j2
+    dest: /etc/apache2/sites-available/000-default.conf
+
+- name: Activate extensions intl, mbstring
+  lineinfile:
+    path: /etc/php/{{ php_version }}/apache2/php.ini
+    regexp: '^;?(extension=intl|extension=mbstring)$'
+    line: 'extension=\1'
+  vars:
+    php_version: "8.3"
+
+- name: Restart Apache
+  service:
+    name: apache2
+    state: restarted
+
+- name: Activate the website and the rewrite module
+  command: "{{ item }}"
+  with_items:
+    - a2ensite 000-default
+    - a2enmod rewrite
+
+- name: Restart Apache
+  service:
+    name: apache2
+    state: restarted
