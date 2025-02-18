@@ -1,5 +1,6 @@
 #! /bin/bash
 
+# need container name
 if [[ $# -le 0 ]]; then
   exit 1
 fi
