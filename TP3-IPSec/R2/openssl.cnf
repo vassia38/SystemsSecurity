@@ -1,0 +1,15 @@
+[ req ]
+distinguished_name = req_distinguished_name
+x509_extensions = v3_ca
+prompt = no
+
+[ req_distinguished_name ]
+C = FR
+O = ipsec
+CN = 192.168.2.1
+
+[ v3_ca ]
+keyUsage = digitalSignature, nonRepudiation, keyEncipherment
+basicConstraints = critical,CA:FALSE
+subjectKeyIdentifier = hash
+authorityKeyIdentifier = keyid,issuer
